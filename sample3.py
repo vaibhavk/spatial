@@ -10,16 +10,15 @@ data.dropna(inplace=True)
 f=data[['Latitude','Longitude']]
 
 x=f[pd.to_numeric(f['Latitude'],errors='coerce').notnull()]
-x=x[pd.to_numeric(f['Longitude'],errors='coerce').notnull()]
+x=x[pd.to_numeric(x['Longitude'],errors='coerce').notnull()]
 x=np.array(x)
+x=x[:100]
 
 a,b=kmeans2.kmeans(x,4,3)
 distances=b[:,1]
 #print(distances)
 error=np.sum(distances)
 print(error)
-
-
 
 fig=plt.figure()
 rect=[0.1,0.1,0.8,0.8]
@@ -28,19 +27,10 @@ axprops=dict(xticks=[],yticks=[])
 ax1=fig.add_axes(rect,label='ax1',frameon=False)
 
 for i in range(4):
-	ptsInCurrCluster=x[np.nonzero(b[:,0]==i)[0],:]
-	markerstyle=scatterMarkers[i%len(scatterMarkers)]
-	ax1.scatter(ptsInCurrCluster[:,0],ptsInCurrCluster[:,1],marker=markerstyle,s=30)
+    ptsInCurrCluster=x[np.nonzero(b[:,0]==i)[0],:]
+    markerstyle=scatterMarkers[i%len(scatterMarkers)]
+    ax1.scatter(ptsInCurrCluster[:,0],ptsInCurrCluster[:,1],marker=markerstyle,s=30)
 
 ax1.scatter(a[:,0],a[:,1],marker='+',s=300)
 
 plt.show()
-
-
-
-
-
-
-
-
-
