@@ -38,18 +38,7 @@ def dist_greatcircle(vec1,vec2):
 def rand_centroid(dataset,k):
     #n,m=dataset.shape[1]
     #centroids=np.array(np.zeros((k,2)))
-
-    centroids=np.zeros((k,2))
-    for j in range(2):
-        min_j=min(dataset[:,j])
-        range_j=float(max(dataset[:,j])-min_j)
-        temp=min_j+range_j*np.random.rand(k,1)
-
-        for i in range(k):
-            centroids[i][j]=temp[i][0]
-
-
-        return(centroids)
+    return dataset[:k]
 
 
 
@@ -65,22 +54,21 @@ def kmeans(dataset,k,dist_measure):
             min_index=-1
 
             for j in range(k):
-
                 if(dist_measure==1):
                     dist_ji=dist_euclid(centroids[j,:],dataset[i,:])
-                    if(dist_measure==2):
-                        dist_ji=dist_vincenty(centroids[j,:],dataset[i,:])
-                        if(dist_measure==3):
-                            dist_ji=dist_greatcircle(centroids[j,:],dataset[i,:])
+                if(dist_measure==2):
+                    dist_ji=dist_vincenty(centroids[j,:],dataset[i,:])
+                if(dist_measure==3):
+                    dist_ji=dist_greatcircle(centroids[j,:],dataset[i,:])
 
-                            if(dist_ji<min_dist):
-                                min_dist=dist_ji
-                                min_index=j
-                        if(cluster_assign[i,0]!=min_index):
-                            cluster_changed=True
-                        cluster_assign[i,:]=min_index,min_dist**2
-                print(centroids)
-                for cent in range(k):
-                    points_in_cluster=dataset[np.nonzero(cluster_assign[:,0]==cent)[0]]
-                    centroids[cent,:]=np.mean(points_in_cluster,axis=0)
-        return centroids,cluster_assign
+                if(dist_ji<min_dist):
+                    min_dist=dist_ji
+                    min_index=j
+            if(cluster_assign[i,0]!=min_index):
+                cluster_changed=True
+                cluster_assign[i,:]=min_index,min_dist**2
+        print(centroids)
+        for cent in range(k):
+            points_in_cluster=dataset[np.nonzero(cluster_assign[:,0]==cent)[0]]
+            centroids[cent,:]=np.mean(points_in_cluster,axis=0)
+    return centroids,cluster_assign
