@@ -13,7 +13,7 @@ x=f[pd.to_numeric(f['Latitude'],errors='coerce').notnull()]
 x=x[pd.to_numeric(x['Longitude'],errors='coerce').notnull()]
 x=np.array(x)
 
-a,b=kmeans2.kmeans(x,4,2)
+a,b=kmeans2.kmeans(x,8,2)
 distances=b[:,1]
 #print(distances)
 error=np.sum(distances)
