@@ -1,7 +1,7 @@
 import numpy as np
 from math import asin, atan, atan2, cos, pi, sin, sqrt, tan, inf
-from geopy.distance import great_circle
 
+it=0
 
 EARTH_RADIUS = 6371.009
 
@@ -36,112 +36,97 @@ def dist_euclid(vec1,vec2):
     for i in range(n):
         x=vec1[i]-vec2[i]
         y=x**2
-        s=s+y
+        s+=y
         h=sqrt(s)
-        return(h)
+    return(h)
 
 def dist_vincenty(vec1,vec2):
-    lat1, lng1 = vec1[0], vec1[1]
-    lat2, lng2 = vec1[0], vec2[1]
+    lat1,lng1=vec1[0],vec1[1]
+    lat2,lng2=vec2[0],vec2[1]
 
-    major, minor, f = ELLIPSOIDS['WGS-84']
+    major,minor,f=ELLIPSOIDS['WGS-84']
 
-    delta_lng = lng2 - lng1
+    delta_lng=lng2-lng1
 
-    reduced_lat1 = atan((1 - f) * tan(lat1))
-    reduced_lat2 = atan((1 - f) * tan(lat2))
+    reduced_lat1=atan((1-f)*tan(lat1))
+    reduced_lat2=atan((1-f)*tan(lat2))
 
-    sin_reduced1, cos_reduced1 = sin(reduced_lat1), cos(reduced_lat1)
-    sin_reduced2, cos_reduced2 = sin(reduced_lat2), cos(reduced_lat2)
+    sin_reduced1,cos_reduced1=sin(reduced_lat1),cos(reduced_lat1)
+    sin_reduced2,cos_reduced2=sin(reduced_lat2),cos(reduced_lat2)
 
-    lambda_lng = delta_lng
-    lambda_prime = 2 * pi
+    lambda_lng=delta_lng
+    lambda_prime=2*pi
 
-    iter_limit = ITERATIONS
+    iter_limit=ITERATIONS
 
-    i = 0
+    i=0
 
-    while (i == 0 or
-       (abs(lambda_lng - lambda_prime) > 10e-12 and i <= iter_limit)):
+    while (i==0 or (abs(lambda_lng-lambda_prime)>10e-12 and i<=iter_limit)):
         i += 1
 
         sin_lambda_lng, cos_lambda_lng = sin(lambda_lng), cos(lambda_lng)
+        sin_sigma = sqrt((cos_reduced2 * sin_lambda_lng) ** 2 +
+                        (cos_reduced1 * sin_reduced2 -
+                         sin_reduced1 * cos_reduced2 * cos_lambda_lng) ** 2)
 
-        sin_sigma = sqrt(
-            (cos_reduced2 * sin_lambda_lng) ** 2 +
-            (cos_reduced1 * sin_reduced2 -
-             sin_reduced1 * cos_reduced2 * cos_lambda_lng) ** 2
-        )
+        if sin_sigma==0:
+            return 0
 
-        if sin_sigma == 0:
-            return 0  # Coincident points
+        cos_sigma=(sin_reduced1*sin_reduced2+cos_reduced1*cos_reduced2*cos_lambda_lng)
 
-        cos_sigma = (
-            sin_reduced1 * sin_reduced2 +
-            cos_reduced1 * cos_reduced2 * cos_lambda_lng
-        )
+        sigma=atan2(sin_sigma,cos_sigma)
 
-        sigma = atan2(sin_sigma, cos_sigma)
+        sin_alpha=(cos_reduced1*cos_reduced2*sin_lambda_lng/sin_sigma)
+        cos_sq_alpha=1-sin_alpha**2
 
-        sin_alpha = (
-            cos_reduced1 * cos_reduced2 * sin_lambda_lng / sin_sigma
-        )
-        cos_sq_alpha = 1 - sin_alpha ** 2
-
-        if cos_sq_alpha != 0:
-            cos2_sigma_m = cos_sigma - 2 * (
-                sin_reduced1 * sin_reduced2 / cos_sq_alpha
-            )
+        if cos_sq_alpha!=0:
+            cos2_sigma_m=cos_sigma-2*(sin_reduced1*sin_reduced2/cos_sq_alpha)
         else:
             cos2_sigma_m = 0.0  # Equatorial line
 
-        C = f / 16. * cos_sq_alpha * (4 + f * (4 - 3 * cos_sq_alpha))
+        C=f/16. *cos_sq_alpha*(4+f*(4-3*cos_sq_alpha))
 
-        lambda_prime = lambda_lng
-        lambda_lng = (
+        lambda_prime=lambda_lng
+        lambda_lng=(
             delta_lng + (1 - C) * f * sin_alpha * (
                 sigma + C * sin_sigma * (
                     cos2_sigma_m + C * cos_sigma * (
                         -1 + 2 * cos2_sigma_m ** 2
-                    )
-                )
-            )
-        )
+                    ))))
 
     if i > iter_limit:
         raise ValueError("Vincenty formula failed to converge!")
 
-    u_sq = cos_sq_alpha * (major ** 2 - minor ** 2) / minor ** 2
+    u_sq=cos_sq_alpha*(major**2 - minor**2)/minor**2
 
-    A = 1 + u_sq / 16384. * (
-    4096 + u_sq * (-768 + u_sq * (320 - 175 * u_sq))
-    )
+    A=1+u_sq/16384.*(4096+u_sq*(-768+u_sq*(320-175*u_sq)))
 
-    B = u_sq / 1024. * (256 + u_sq * (-128 + u_sq * (74 - 47 * u_sq)))
+    B=u_sq/1024.*(256+u_sq*(-128+u_sq*(74-47*u_sq)))
 
-    delta_sigma = (
-        B * sin_sigma * (
-        cos2_sigma_m + B / 4. * (
-            cos_sigma * (
-                -1 + 2 * cos2_sigma_m ** 2
-            ) - B / 6. * cos2_sigma_m * (
-                -3 + 4 * sin_sigma ** 2
-            ) * (
-                -3 + 4 * cos2_sigma_m ** 2
-            )
-        )
-        )
-    )
+    delta_sigma=(B*sin_sigma*(cos2_sigma_m+B/4.*(
+            cos_sigma* (-1+2*cos2_sigma_m**2) 
+                - B/6.*cos2_sigma_m*(-3+4*sin_sigma**2) *
+                (-3+4*cos2_sigma_m**2)
+        )))
 
-    s = minor * A * (sigma - delta_sigma)
+    s=minor*A*(sigma-delta_sigma)
     return s
 
-def dist_greatcircle(point1,point2):
-    return great_circle(point1,point2).kilometers
+def dist_greatcircle(vec1,vec2):
+    t1= pow(( cos(vec2[0])* sin(vec2[1]-vec1[1])),2)
+    t2= pow(( cos(vec1[0])* sin(vec2[0])- sin(vec1[0])* cos(vec2[0])* cos(vec2[1]-vec1[1])),2)
+
+    numerator= atan( sqrt(t1+t2))
+
+    a= sin((vec1[0])*( pi/180))* sin((vec2[0])*( pi/180))
+    b= cos((vec1[0])*( pi/180))* cos((vec2[0])*( pi/180))* cos((vec1[1]-vec2[1])*( pi/180))
+
+    angle=numerator/abs((a+b))
+    dist=angle*6371.0
+
+    return dist
 
 def rand_centroid(dataset,k):
-    #n,m=dataset.shape[1]
-    #centroids=np.array(np.zeros((k,2)))
     return dataset[:k]
 
 def kmeans(dataset,k,dist_measure):
@@ -149,6 +134,7 @@ def kmeans(dataset,k,dist_measure):
     cluster_assign=np.zeros((m,2))
     centroids=rand_centroid(dataset,k)
     cluster_changed=True
+    print('Processing now....\n')
     while(cluster_changed):
         cluster_changed=False
         for i in range(m):
@@ -169,7 +155,10 @@ def kmeans(dataset,k,dist_measure):
             if(cluster_assign[i,0]!=min_index):
                 cluster_changed=True
                 cluster_assign[i,:]=min_index,min_dist**2
-        print(centroids)
+        global it
+        print("Iteration",it)
+        it+=1
+
         for cent in range(k):
             points_in_cluster=dataset[np.nonzero(cluster_assign[:,0]==cent)[0]]
             centroids[cent,:]=np.mean(points_in_cluster,axis=0)

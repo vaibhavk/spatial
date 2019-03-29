@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import pandas as pd
 import kmeans2
@@ -13,7 +16,7 @@ x=f[pd.to_numeric(f['Latitude'],errors='coerce').notnull()]
 x=x[pd.to_numeric(x['Longitude'],errors='coerce').notnull()]
 x=np.array(x)
 
-a,b=kmeans2.kmeans(x,8,2)
+a,b=kmeans2.kmeans(x,4,3)
 distances=b[:,1]
 #print(distances)
 error=np.sum(distances)

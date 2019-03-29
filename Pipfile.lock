@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "81d312db29d9d48af0f20479111dbc88ceed6754ca25feb5e2bb5b6dd60a2efa"
+            "sha256": "fd1cdda889050abd57b36652b81b40f885cbfcc5455bf6245ba2bfbb7cd87318"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -22,20 +22,6 @@
                 "sha256:cd7b2d1018258d7247a71425e9f26463dfb444d411c39569972f4ce586b0c9d8"
             ],
             "version": "==0.10.0"
-        },
-        "geographiclib": {
-            "hashes": [
-                "sha256:635da648fce80a57b81b28875d103dacf7deb12a3f5f7387ba7d39c51e096533"
-            ],
-            "version": "==1.49"
-        },
-        "geopy": {
-            "hashes": [
-                "sha256:9b23b6f45fb3a60d3d5d6c17dd9c2321fec990bf43d21b1f01bfcc2f062b6dea",
-                "sha256:d2fc0dc79572f5acbcf7e48af1233ac8033079ddb15cae538b9dd03587436de5"
-            ],
-            "index": "pypi",
-            "version": "==1.19.0"
         },
         "kiwisolver": {
             "hashes": [
